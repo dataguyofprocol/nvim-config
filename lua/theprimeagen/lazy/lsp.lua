@@ -1,5 +1,7 @@
 return {
     "neovim/nvim-lspconfig",
+    lazy = false,
+    priority = 100,
     dependencies = {
         "williamboman/mason.nvim",
         "williamboman/mason-lspconfig.nvim",
@@ -28,6 +30,7 @@ return {
             ensure_installed = {
                 "lua_ls",
                 "pyright",
+                "pylsp",
             },
             handlers = {
                 function(server_name) -- default handler (optional)
@@ -48,6 +51,39 @@ return {
                                 }
                             }
                         }
+                    }
+                end,
+                ["pyright"] = function()
+                    local lspconfig = require("lspconfig")
+                    local util = require("lspconfig.util")
+                    local on_attach = function(client, bufnr)
+                        local function buf_set_option(...) vim.api.nvim_buf_set_option(bufnr, ...) end
+                        buf_set_option('omnifunc', 'v:lua.vim.lsp.omnifunc')
+                        client.server_capabilities.document_formatting = true
+                    end
+                    local lsp_flags = {
+                        allow_incremental_sync = true,
+                        debounce_text_changes = 150,
+                    }
+
+                    lspconfig.pyright.setup {
+                        on_attach = on_attach,
+                        capabilities = capabilities,
+                        flags = lsp_flags,
+                        settings = {
+                            python = {
+                                analysis = {
+                                    autoSearchPaths = true,
+                                    useLibraryCodeForTypes = false,
+                                    diagnosticMode = 'openFilesOnly', }
+                            }
+                        },
+                        root_dir = function(fname)
+                            return util.root_pattern(".git", "setup.py", "setup.cfg", "pyproject.toml",
+                                    "requirements.txt", "pyrightconfig.json")(fname) or
+                                util.find_git_ancestor(fname) or
+                                util.path.dirname(fname)
+                        end
                     }
                 end,
             }
