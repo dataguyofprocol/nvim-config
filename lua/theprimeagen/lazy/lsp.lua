@@ -30,7 +30,6 @@ return {
             ensure_installed = {
                 "lua_ls",
                 "pyright",
-                "pylsp",
             },
             handlers = {
                 function(server_name) -- default handler (optional)
@@ -65,7 +64,6 @@ return {
                         allow_incremental_sync = true,
                         debounce_text_changes = 150,
                     }
-
                     lspconfig.pyright.setup {
                         on_attach = on_attach,
                         capabilities = capabilities,
@@ -81,8 +79,7 @@ return {
                         root_dir = function(fname)
                             return util.root_pattern(".git", "setup.py", "setup.cfg", "pyproject.toml",
                                     "requirements.txt", "pyrightconfig.json")(fname) or
-                                util.find_git_ancestor(fname) or
-                                util.path.dirname(fname)
+                                util.find_git_ancestor(fname)
                         end
                     }
                 end,
