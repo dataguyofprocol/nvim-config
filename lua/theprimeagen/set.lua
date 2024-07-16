@@ -26,7 +26,7 @@ vim.opt.isfname:append("@-@")
 
 vim.opt.updatetime = 50
 
-vim.opt.colorcolumn = "80"
+vim.opt.colorcolumn = "88"
 
 vim.opt.hlsearch = true
 vim.opt.incsearch = true
