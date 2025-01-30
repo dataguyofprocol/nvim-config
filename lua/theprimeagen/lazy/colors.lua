@@ -1,8 +1,18 @@
 function ColorMyPencils(color)
-    local my_colors = { 'gruvbox', 'kanagawa', 'rose-pine', 'tokyonight' }
+    math.randomseed(os.time())
+
+    local my_colors = { 'gruvbox', 'kanagawa', 'tokyonight', 'rose-pine', 'brightburn' }
     local rand_color = color or my_colors[math.random(#my_colors)]
-    print("Coloring My Pencils...", rand_color)
-    vim.cmd.colorscheme(rand_color)
+    print("Coloring My Pencils with...", rand_color)
+
+    local success, err = pcall(vim.cmd.colorscheme, rand_color)
+    if not success then
+        print("Error setting colorscheme:", err)
+        return
+    end
+
+    vim.api.nvim_set_hl(0, "Normal", { bg = "NONE", ctermbg = "NONE" })
+    vim.api.nvim_set_hl(0, "NormalFloat", { bg = "NONE", ctermbg = "NONE" })
 end
 
 return {
@@ -11,8 +21,8 @@ return {
         name = "gruvbox",
         config = function()
             require('gruvbox').setup({
+                transparent_mode = true,
                 styles = {
-                    transparent_mode = true,
                     italic = {
                         strings = false,
                         comments = false,
@@ -31,45 +41,53 @@ return {
             require('kanagawa').setup({
                 commentStyle = { italic = false },
                 keywordStyle = { italic = false },
-                theme = "lotus",
+                theme = "wave",
+                transparent = true,
                 background = {
                     dark = "dragon",
                     light = "lotus"
                 }
             })
-            -- vim.cmd("colorscheme kanagawa")
-        end
-    },
-
-    {
-        "rose-pine/neovim",
-        name = "rose-pine",
-        config = function()
-            require('rose-pine').setup({
-                disable_background = true,
-                styles = {
-                    italic = false,
-                },
-            })
         end
     },
     {
         "folke/tokyonight.nvim",
+        name = "tokyonight",
         config = function()
             require("tokyonight").setup({
                 style = "night",
-                transparent = false,
+                transparent = true,
                 terminal_colors = true,
                 styles = {
                     comments = { italic = false },
                     keywords = { italic = false },
-                    sidebars = "dark", -- style for sidebars, see below
-                    floats = "dark",   -- style for floating windows
+                    sidebars = "dark",
+                    floats = "dark",
                 },
             })
+        end
+    },
+    {
+        "rose-pine/neovim",
+        name = "rose-pine",
+        config = function()
+            require("rose-pine").setup({
+                dark_variant = "moon", -- Options: 'main', 'moon', 'dawn'
+                disable_background = true,
+                disable_float_background = true,
+                highlight_groups = {
+                    Normal = { bg = "NONE" },
+                    NormalFloat = { bg = "NONE" },
+                },
+            })
+        end
+    },
+    {
+        "erikbackman/brightburn.vim",
+        name = "brightburn",
+        config = function()
+            vim.g.brightburn_transparent_background = true
             ColorMyPencils()
         end
     },
-
-
 }

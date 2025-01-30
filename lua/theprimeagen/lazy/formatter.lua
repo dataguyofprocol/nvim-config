@@ -24,7 +24,7 @@ return {
             vim.lsp.buf.format()
         end
 
-        vim.keymap.set('n', '<leader>f', format, { desc = "Format buf with Neoformat or ls" })
+        vim.keymap.set('n', '<leader>=', format, { desc = "Format buf with Neoformat or ls" })
         vim.g.neoformat_try_formatrpg = 1
     end
 }

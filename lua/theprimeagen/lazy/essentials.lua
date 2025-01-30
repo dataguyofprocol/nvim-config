@@ -20,12 +20,13 @@ return {
         dependencies = {
             "MunifTanjim/nui.nvim"
         },
-        lazy=false,
+        lazy = false,
         config = function()
             local cmdline = require("fine-cmdline")
             cmdline:setup()
 
-            vim.keymap.set("n", ":", '<cmd>lua require("fine-cmdline").open({default_value = ""})<CR>', {noremap=true, silent=true})
+            vim.keymap.set("n", ":", '<cmd>lua require("fine-cmdline").open({default_value = ""})<CR>',
+                { noremap = true, silent = true })
         end
-    }
+    },
 }
