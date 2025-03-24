@@ -1,5 +1,4 @@
 local prompts = {
-    -- Code related prompts
     Explain = "Please explain how the following code works.",
     Review = "Please review the following code and provide suggestions for improvement.",
     Tests = "Please explain how the selected code works, then generate unit tests for it.",
@@ -7,14 +6,7 @@ local prompts = {
     FixCode = "Please fix the following code to make it work as intended.",
     FixError = "Please explain the error in the following text and provide a solution.",
     BetterNamings = "Please provide better names for the following variables and functions.",
-    Documentation = "Please provide documentation for the following code.",
-    SwaggerApiDocs = "Please provide documentation for the following API using Swagger.",
-    SwaggerJsDocs = "Please write JSDoc for the following API using Swagger.",
-    -- Text related prompts
-    Summarize = "Please summarize the following text.",
-    Spelling = "Please correct any grammar and spelling errors in the following text.",
-    Wording = "Please improve the grammar and wording of the following text.",
-    Concise = "Please rewrite the following text to make it more concise.",
+    Docstrings = "Please provide docstrings for the following code.",
 }
 
 return {
@@ -22,6 +14,7 @@ return {
     dependencies = {
         { "nvim-telescope/telescope.nvim" }, -- Use telescope for help actions
         { "nvim-lua/plenary.nvim" },
+        { "github/copilot.vim" },
     },
     opts = {
         question_header = "## User ",
@@ -42,8 +35,8 @@ return {
             },
             -- Reset the chat buffer
             reset = {
-                normal = "<C-x>",
-                insert = "<C-x>",
+                normal = "<C-r>",
+                insert = "<C-r>",
             },
             -- Submit the prompt to Copilot
             submit_prompt = {
@@ -57,7 +50,7 @@ return {
             },
             -- Show help
             show_help = {
-                normal = "g?",
+                normal = "?",
             },
         },
     },
@@ -106,8 +99,9 @@ return {
     end,
     event = "VeryLazy",
     keys = {
+        -- Use consistent prefix for all Copilot commands (cc for "Copilot Chat")
         {
-            "<leader>ap",
+            "<leader>cc",
             function()
                 local actions = require("CopilotChat.actions")
                 require("CopilotChat.integrations.telescope").pick(actions.prompt_actions())
@@ -115,37 +109,37 @@ return {
             desc = "CopilotChat - Prompt actions",
         },
         {
-            "<leader>ap",
+            "<leader>cc",
             ":lua require('CopilotChat.integrations.telescope').pick(require('CopilotChat.actions').prompt_actions({selection = require('CopilotChat.select').visual}))<CR>",
             mode = "x",
             desc = "CopilotChat - Prompt actions",
         },
+        -- Inline chat with visual selection
         {
-            "<leader>ax",
+            "<leader>ci",
             ":CopilotChatInline<cr>",
             mode = "x",
             desc = "CopilotChat - Inline chat",
         },
+        -- Visual selection chat in vertical split
         {
-            "<leader>ax",
+            "<leader>cv",
             ":CopilotChatVisual<cr>",
             mode = "x",
             desc = "CopilotChat - Open in vertical split",
         },
+        -- Ask with input prompt
         {
-            "<leader>ai",
+            "<leader>cp",
             function()
                 local input = vim.fn.input("Ask Copilot: ")
                 if input ~= "" then
                     vim.cmd("CopilotChat " .. input)
                 end
             end,
-            desc = "CopilotChat - Ask input",
+            desc = "CopilotChat - Ask with prompt",
         },
-        { "<leader>ae", "<cmd>CopilotChatExplain<cr>",       desc = "CopilotChat - Explain code" },
-        { "<leader>ar", "<cmd>CopilotChatRefactor<cr>",      desc = "CopilotChat - Refactor code" },
-        { "<leader>af", "<cmd>CopilotChatFix<cr>", desc = "CopilotChat - Fix Diagnostic" },
-        { "<C-l>", "<cmd>CopilotChatReset<cr>",         desc = "CopilotChat - Clear buffer and chat history" },
-        { "<leader>aa", "<cmd>CopilotChatToggle<cr>",        desc = "CopilotChat - Toggle" },
+        { "<leader>cx", "<cmd>CopilotChatReset<cr>", desc = "CopilotChat - Clear buffer and chat history" },
+        { "<leader>cq", "<cmd>CopilotChatToggle<cr>", desc = "CopilotChat - Toggle chat window" },
     }
 }
