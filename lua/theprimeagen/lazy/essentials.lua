@@ -29,4 +29,5 @@ return {
                 { noremap = true, silent = true })
         end
     },
+    { "github/copilot.vim" },
 }
