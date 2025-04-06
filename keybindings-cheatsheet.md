@@ -42,7 +42,6 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 | Keybinding | Description |
 |------------|-------------|
 | `<leader>pv` | Open Netrw file explorer |
-| `<C-f>` | Open tmux sessionizer |
 
 ## Text Manipulation
 
@@ -82,8 +81,6 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 | `<leader>vca` | Code action |
 | `<leader>vrr` | Find references |
 | `<leader>vrn` | Rename symbol |
-| `<leader>vf` | Format code |
-| `<C-h>` (insert mode) | Show signature help |
 | `[d` | Previous diagnostic |
 | `]d` | Next diagnostic |
 | `<leader>vq` | Add diagnostics to location list |
@@ -127,19 +124,10 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 |------------|-------------|
 | `<leader>pf` | Find files |
 | `<C-p>` | Find git files |
-| `<leader>pr` | Find recent files |
-| `<leader>pb` | Find buffers |
 | `<leader>pws` | Search for word under cursor |
 | `<leader>pWs` | Search for WORD under cursor |
 | `<leader>ps` | Search with grep |
 | `<leader>pg` | Live grep |
-| `<leader>pd` | Find diagnostics |
-| `<leader>psy` | Find document symbols |
-| `<leader>psr` | Find references |
-| `<leader>vh` | Find help tags |
-| `<leader>pm` | Find marks |
-| `<leader>pk` | Find keymaps |
-| `<leader>pc` | Find commands |
 
 ## Zen Mode
 
@@ -168,25 +156,11 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 
 ## Tips for Learning Keybindings
 
-1. **Start with the basics**: Focus on learning the most frequently used keybindings first, such as navigation and file operations.
-
-2. **Use mnemonics**: Many keybindings follow patterns that make them easier to remember:
-   - `<leader>p` prefixes are for "find/pick" operations (Telescope)
+1. **Use mnemonics**: Many keybindings follow patterns that make them easier to remember:
    - `<leader>v` prefixes are for LSP operations
+   - `<leader>p` prefixes are for "find/pick" operations (Telescope)
    - `<leader>g` prefixes are for Git operations
    - `<leader>t` prefixes are for Trouble operations
+   - `<leader>z` prefixes are for Zen mode operations
+   - `<leader>a` prefixes are for Harpoon operations
 
-3. **Practice regularly**: Try to use keybindings instead of mouse operations whenever possible.
-
-4. **Incremental learning**: Add a few new keybindings to your workflow each week rather than trying to learn them all at once.
-
-5. **Create your own**: If you find yourself performing a specific action frequently, consider adding your own keybinding for it.
-
-## Keybinding Patterns
-
-- **Navigation**: `<C-d>`, `<C-u>`, `n`, `N` - All center the cursor after movement
-- **LSP**: Most LSP commands start with `<leader>v`
-- **Telescope**: Most Telescope commands start with `<leader>p`
-- **Harpoon**: File navigation with `<leader>1-4`, management with `<leader>a`
-- **Git**: Git commands start with `<leader>g`
-- **Trouble**: Trouble commands start with `<leader>t` 
