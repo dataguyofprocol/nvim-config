@@ -5,12 +5,15 @@ return {
     opts = {
         cursor_applying_provider = "mistral",
         provider = "mistral",
-        vendors = {
+        providers = {
             mistral = {
                 __inherited_from = "openai",
                 endpoint = "https://codestral.mistral.ai/v1/",
                 model = "codestral-latest",
                 api_key_name = "CODESTRAL_API_KEY",
+                extra_request_body = {
+                    max_tokens = 4096,
+                }
             }
         },
     },

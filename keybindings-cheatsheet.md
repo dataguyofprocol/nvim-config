@@ -69,22 +69,6 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 
 ## LSP (Language Server Protocol)
 
-| Keybinding | Description |
-|------------|-------------|
-| `gd` | Go to definition |
-| `gr` | Go to references |
-| `gi` | Go to implementation |
-| `gt` | Go to type definition |
-| `K` | Show hover information |
-| `<leader>vws` | Search workspace symbols |
-| `<leader>vd` | Show diagnostics |
-| `<leader>vca` | Code action |
-| `<leader>vrr` | Find references |
-| `<leader>vrn` | Rename symbol |
-| `[d` | Previous diagnostic |
-| `]d` | Next diagnostic |
-| `<leader>vq` | Add diagnostics to location list |
-
 ## Git Operations
 
 | Keybinding | Description |

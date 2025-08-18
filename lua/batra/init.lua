@@ -53,6 +53,7 @@ autocmd('LspAttach', {
         vim.keymap.set("n", "[d", function() vim.diagnostic.goto_prev() end, { buffer = e.buf, desc = "Previous diagnostic" })
         vim.keymap.set("n", "]d", function() vim.diagnostic.goto_next() end, { buffer = e.buf, desc = "Next diagnostic" })
         vim.keymap.set("n", "<leader>vq", function() vim.diagnostic.setloclist() end, { buffer = e.buf, desc = "Add diagnostics to location list" })
+        vim.keymap.set("n", "<leader>q", function() vim.api.nvim_win_close(0, true) end, { buffer = e.buf, desc = "Close window and return focus" })
     end
 })
 
