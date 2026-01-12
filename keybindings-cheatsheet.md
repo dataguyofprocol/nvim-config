@@ -26,6 +26,7 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 | `jk` / `kj` / `<C-c>` | Exit insert mode |
 | `Q` | Disabled (prevents entering Ex mode) |
 | `<leader>u` | Toggle Undotree |
+| `:` | Open command line with FineCmdline |
 
 ## Navigation
 
@@ -46,11 +47,50 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 ## Text Manipulation
 
 | Keybinding | Description |
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git", "clone", "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable",
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
+
+-- Basic settings for testing
+vim.opt.number = true
+vim.opt.termguicolors = true
+
+-- Load your local plugin
+require("lazy").setup({
+  {
+    dir = "~/PycharmProjects/hexwitch.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim", -- Optional
+    },
+    config = function()
+      require("hexwitch").setup({
+        openai_api_key = "OPENAI_API_KEY",
+        model = "gpt-4.1-mini",
+        ui_mode = "input",
+        debug = true, -- Enable debug mode!
+      })
+    end,
+  }
+})
+
+-- Test keybinding
+vim.keymap.set("n", "<leader>t", "<cmd>Hexwitch<cr>", { desc = "Test Hexwitch" })
+
 |------------|-------------|
 | `J` (visual mode) | Move selected line down |
 | `K` (visual mode) | Move selected line up |
 | `<leader>o` | Insert blank line below |
 | `<leader>O` | Insert blank line above |
+| `<leader>=` | Format buffer with Neoformat or LSP |
 
 ## Clipboard Operations
 
@@ -68,6 +108,10 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 | `<leader>s` | Search and replace word under cursor |
 
 ## LSP (Language Server Protocol)
+
+| Keybinding | Description |
+|------------|-------------|
+| `<leader>rr` | Select refactoring |
 
 ## Git Operations
 
@@ -138,6 +182,15 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 | `<leader>x` | Make current file executable |
 | `<leader>mr` | Make it rain (CellularAutomaton) |
 
+## Snippets
+
+| Keybinding | Description |
+|------------|-------------|
+| `<C-s>e` | Expand snippet |
+| `<C-s>;` | Jump to next node |
+| `<C-s>,` | Jump to previous node |
+| `<C-E>` | Change choice |
+
 ## Tips for Learning Keybindings
 
 1. **Use mnemonics**: Many keybindings follow patterns that make them easier to remember:
@@ -147,4 +200,3 @@ This document provides a comprehensive reference for all keybindings in my Neovi
    - `<leader>t` prefixes are for Trouble operations
    - `<leader>z` prefixes are for Zen mode operations
    - `<leader>a` prefixes are for Harpoon operations
-

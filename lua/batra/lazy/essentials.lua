@@ -29,5 +29,22 @@ return {
                 { noremap = true, silent = true })
         end
     },
-    { "github/copilot.vim" },
+    -- { "github/copilot.vim" },
+    {
+        "Exafunction/windsurf.nvim",
+        dependencies = {
+            "nvim-lua/plenary.nvim",
+            "hrsh7th/nvim-cmp",
+        },
+        config = function()
+            require("codeium").setup({
+                enable_cmp_source = false, -- Disable cmp source for inline mode
+                virtual_text = {
+                    enabled = true,
+                    manual = false,
+                    prefix = "󰘦 ",
+                },
+            })
+        end
+    },
 }
