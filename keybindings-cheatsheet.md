@@ -17,6 +17,7 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 - [Zen Mode](#zen-mode)
 - [Trouble](#trouble)
 - [Miscellaneous](#miscellaneous)
+- [Completion](#completion)
 
 ## General
 
@@ -43,48 +44,12 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 | Keybinding | Description |
 |------------|-------------|
 | `<leader>pv` | Open Netrw file explorer |
+| `<leader>pf` | Find files (Telescope) |
+| `<C-p>` | Find git files (Telescope) |
 
 ## Text Manipulation
 
 | Keybinding | Description |
--- Bootstrap lazy.nvim
-local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
-    "git", "clone", "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable",
-    lazypath,
-  })
-end
-vim.opt.rtp:prepend(lazypath)
-
--- Basic settings for testing
-vim.opt.number = true
-vim.opt.termguicolors = true
-
--- Load your local plugin
-require("lazy").setup({
-  {
-    dir = "~/PycharmProjects/hexwitch.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-telescope/telescope.nvim", -- Optional
-    },
-    config = function()
-      require("hexwitch").setup({
-        openai_api_key = "OPENAI_API_KEY",
-        model = "gpt-4.1-mini",
-        ui_mode = "input",
-        debug = true, -- Enable debug mode!
-      })
-    end,
-  }
-})
-
--- Test keybinding
-vim.keymap.set("n", "<leader>t", "<cmd>Hexwitch<cr>", { desc = "Test Hexwitch" })
-
 |------------|-------------|
 | `J` (visual mode) | Move selected line down |
 | `K` (visual mode) | Move selected line up |
@@ -106,11 +71,29 @@ vim.keymap.set("n", "<leader>t", "<cmd>Hexwitch<cr>", { desc = "Test Hexwitch" }
 | Keybinding | Description |
 |------------|-------------|
 | `<leader>s` | Search and replace word under cursor |
+| `<leader>pws` | Search for word under cursor (Telescope) |
+| `<leader>pWs` | Search for WORD under cursor (Telescope) |
+| `<leader>ps` | Search with grep (Telescope) |
+| `<leader>pg` | Live grep (Telescope) |
 
 ## LSP (Language Server Protocol)
 
 | Keybinding | Description |
 |------------|-------------|
+| `gd` | Go to definition |
+| `gr` | Go to references |
+| `gi` | Go to implementation |
+| `gt` | Go to type definition |
+| `K` | Show hover information |
+| `<leader>vws` | Search workspace symbols |
+| `<leader>vd` | Show diagnostics |
+| `<leader>vca` | Code action |
+| `<leader>vrr` | Find references |
+| `<leader>vrn` | Rename symbol |
+| `[d` | Previous diagnostic |
+| `]d` | Next diagnostic |
+| `<leader>vq` | Add diagnostics to location list |
+| `<leader>q` | Close window and return focus |
 | `<leader>rr` | Select refactoring |
 
 ## Git Operations
@@ -182,14 +165,15 @@ vim.keymap.set("n", "<leader>t", "<cmd>Hexwitch<cr>", { desc = "Test Hexwitch" }
 | `<leader>x` | Make current file executable |
 | `<leader>mr` | Make it rain (CellularAutomaton) |
 
-## Snippets
+## Completion
 
 | Keybinding | Description |
 |------------|-------------|
-| `<C-s>e` | Expand snippet |
-| `<C-s>;` | Jump to next node |
-| `<C-s>,` | Jump to previous node |
-| `<C-E>` | Change choice |
+| `<C-p>` | Select previous item |
+| `<C-n>` | Select next item |
+| `<C-y>` | Confirm selection |
+| `<C-Space>` | Complete |
+| `<CR>` | Confirm selection |
 
 ## Tips for Learning Keybindings
 
