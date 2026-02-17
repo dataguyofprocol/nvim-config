@@ -10,6 +10,7 @@ return {
         "hrsh7th/cmp-path",
         "hrsh7th/cmp-cmdline",
         "hrsh7th/nvim-cmp",
+        "milanglacier/minuet-ai.nvim",
         "L3MON4D3/LuaSnip",
         "saadparwaiz1/cmp_luasnip",
         "j-hui/fidget.nvim",
@@ -18,6 +19,7 @@ return {
     config = function()
         local cmp = require('cmp')
         local cmp_lsp = require("cmp_nvim_lsp")
+        local minuet = require("minuet")
         local capabilities = vim.tbl_deep_extend(
             "force",
             {},
@@ -88,6 +90,23 @@ return {
 
         local cmp_select = { behavior = cmp.SelectBehavior.Select }
 
+        minuet.setup({
+            provider = "codestral",
+            n_completions = 1,
+            context_window = 2000,
+            provider_options = {
+                codestral = {
+                    model = vim.env.CODESTRAL_MODEL or "codestral-latest",
+                    end_point = vim.env.CODESTRAL_ENDPOINT or "https://codestral.mistral.ai/v1/fim/completions",
+                    api_key = "CODESTRAL_API_KEY",
+                    optional = {
+                        max_tokens = 256,
+                        stop = { "\n\n" },
+                    },
+                },
+            },
+        })
+
         cmp.setup({
             snippet = {
                 expand = function(args)
@@ -100,9 +119,11 @@ return {
                 ['<C-y>'] = cmp.mapping.confirm({ select = true }),
                 ["<C-Space>"] = cmp.mapping.complete(),
                 ['<CR>'] = cmp.mapping.confirm({ select = true }),
+                ["<Tab>"] = minuet.make_cmp_map(),
 
             }),
             sources = cmp.config.sources({
+                { name = 'minuet', group_index = 1, priority = 100 },
                 { name = 'nvim_lsp' },
                 { name = 'luasnip' }, -- For luasnip users.
             }, {
