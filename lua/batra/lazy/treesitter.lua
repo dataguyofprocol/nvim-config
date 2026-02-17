@@ -1,37 +1,14 @@
 return {
     "nvim-treesitter/nvim-treesitter",
+    lazy = false,
     build = ":TSUpdate",
     config = function()
-        require("nvim-treesitter.configs").setup({
-            -- A list of parser names, or "all"
-            ensure_installed = {
-                "vimdoc", "python", "javascript", "lua", "bash", "regex", "markdown", "markdown_inline"
-            },
+        local treesitter = require("nvim-treesitter")
+        local parsers = require("nvim-treesitter.parsers")
 
-            -- Install parsers synchronously (only applied to `ensure_installed`)
-            sync_install = false,
+        treesitter.setup({})
 
-            -- Automatically install missing parsers when entering buffer
-            -- Recommendation: set to false if you don"t have `tree-sitter` CLI installed locally
-            auto_install = true,
-
-            indent = {
-                enable = true
-            },
-
-            highlight = {
-                enable = true,
-
-                -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-                -- Set this to `true` if you depend on "syntax" being enabled (like for indentation).
-                -- Using this option may slow down your editor, and you may see some duplicate highlights.
-                -- Instead of true it can also be a list of languages
-                additional_vim_regex_highlighting = { "markdown" },
-            },
-        })
-
-        local treesitter_parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-        treesitter_parser_config.templ = {
+        parsers.templ = {
             install_info = {
                 url = "https://github.com/vrischmann/tree-sitter-templ.git",
                 files = { "src/parser.c", "src/scanner.c" },
@@ -40,5 +17,42 @@ return {
         }
 
         vim.treesitter.language.register("templ", "templ")
+
+        treesitter.install({
+            "vimdoc",
+            "python",
+            "javascript",
+            "lua",
+            "bash",
+            "regex",
+            "markdown",
+            "markdown_inline",
+            "templ",
+        })
+
+        local indent_langs = {
+            bash = true,
+            javascript = true,
+            lua = true,
+            python = true,
+            templ = true,
+        }
+
+        local group = vim.api.nvim_create_augroup("BatraTreesitter", { clear = true })
+        vim.api.nvim_create_autocmd("FileType", {
+            group = group,
+            callback = function(args)
+                pcall(vim.treesitter.start, args.buf)
+
+                local ft = vim.bo[args.buf].filetype
+                if ft == "markdown" then
+                    vim.bo[args.buf].syntax = "ON"
+                end
+
+                if indent_langs[ft] then
+                    vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+                end
+            end,
+        })
     end
 }
