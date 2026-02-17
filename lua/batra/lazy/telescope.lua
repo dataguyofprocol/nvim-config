@@ -1,26 +1,12 @@
 return {
     "nvim-telescope/telescope.nvim",
-
-    tag = "0.1.5",
-
+    version = "*",
     dependencies = {
         "nvim-lua/plenary.nvim"
     },
 
     config = function()
-        require('telescope').setup({
-            defaults = {
-                vimgrep_arguments = {
-                    '/Users/parth-procol/.asdf/installs/nodejs/20.14.0/lib/node_modules/@anthropic-ai/claude-code/vendor/ripgrep/arm64-darwin/rg',
-                    '--color=never',
-                    '--no-heading',
-                    '--with-filename',
-                    '--line-number',
-                    '--column',
-                    '--smart-case'
-                }
-            }
-        })
+        require('telescope').setup()
 
         local builtin = require('telescope.builtin')
         vim.keymap.set('n', '<leader>pf', builtin.find_files, {})
@@ -39,4 +25,3 @@ return {
         vim.keymap.set('n', '<leader>pg', builtin.live_grep, { desc = "Live grep" })
     end
 }
-
