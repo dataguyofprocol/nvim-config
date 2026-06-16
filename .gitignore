@@ -4,5 +4,6 @@ plugin/packer_compiled.lua
 
 .nvimlog
 .nvimlog.test
+.trae/
 
 
