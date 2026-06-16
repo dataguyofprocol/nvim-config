@@ -41,6 +41,7 @@ vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><
 
 -- File operations
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make current file executable" })
+vim.keymap.set("n", "<leader>mp", "<cmd>RenderMarkdown toggle<CR>", { desc = "Toggle Markdown render" })
 
 -- Fun stuff
 vim.keymap.set("n", "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>", { desc = "Make it rain" });
@@ -49,4 +50,7 @@ vim.keymap.set("n", "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>", { d
 vim.keymap.set('n', '<Leader>o', 'o<Esc>0"_D', { noremap = true, desc = "Insert blank line below" })
 vim.keymap.set('n', '<Leader>O', 'O<Esc>0"_D', { noremap = true, desc = "Insert blank line above" })
 
-
+vim.keymap.set("n", "<leader>?", function()
+    local cheatsheet = vim.fn.expand("~/.config/nvim/keybindings-cheatsheet.md")
+    vim.cmd("vsplit " .. vim.fn.fnameescape(cheatsheet))
+end, { desc = "Open keybindings cheatsheet" })

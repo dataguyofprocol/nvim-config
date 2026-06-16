@@ -101,11 +101,21 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 | Keybinding | Description |
 |------------|-------------|
 | `<leader>gs` | Open Git status (Fugitive) |
-| `<leader>p` | Git push (in Fugitive buffer) |
-| `<leader>P` | Git pull with rebase (in Fugitive buffer) |
-| `<leader>t` | Git push to origin with tracking setup (in Fugitive buffer) |
-| `gu` | Get changes from left side during merge conflict (//2) |
-| `gh` | Get changes from right side during merge conflict (//3) |
+| `<leader>gd` | Diff current file against index |
+| `<leader>gD` | Diff entire repository |
+| `<leader>gw` | Stage current file (`git add`) |
+| `<leader>gr` | Revert current file to HEAD (`git checkout --`) |
+| `<leader>gcc` | Git commit |
+| `<leader>gC` | Git commit --amend |
+| `<leader>gb` | Git blame |
+| `<leader>gl` | Git log |
+| `<leader>gp` | Git push |
+| `<leader>gP` | Git pull --rebase |
+| `<leader>gf` | Git push --force-with-lease |
+| `<leader>gt` | Git push to origin with tracking setup |
+| `<leader>gri` | Interactive rebase |
+| `gu` | Get changes from left side during merge conflict (//2 / ours) |
+| `gh` | Get changes from right side during merge conflict (//3 / theirs) |
 
 ## Quickfix and Location List
 
@@ -163,6 +173,7 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 | Keybinding | Description |
 |------------|-------------|
 | `<leader>x` | Make current file executable |
+| `<leader>mp` | Toggle Markdown render (render-markdown.nvim) |
 | `<leader>mr` | Make it rain (CellularAutomaton) |
 
 ## Completion
@@ -174,6 +185,7 @@ This document provides a comprehensive reference for all keybindings in my Neovi
 | `<C-y>` | Confirm selection |
 | `<C-Space>` | Complete |
 | `<CR>` | Confirm selection |
+| `<Tab>` | Accept AI completion (Minuet/Codestral) |
 
 ## Tips for Learning Keybindings
 
@@ -184,3 +196,4 @@ This document provides a comprehensive reference for all keybindings in my Neovi
    - `<leader>t` prefixes are for Trouble operations
    - `<leader>z` prefixes are for Zen mode operations
    - `<leader>a` prefixes are for Harpoon operations
+   - `<leader>m` prefixes are for Misc operations (mp = markdown preview, mr = make it rain)
