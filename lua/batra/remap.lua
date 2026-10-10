@@ -27,8 +27,8 @@ vim.keymap.set("i", "kj", "<Esc>", { desc = "Exit insert mode" })
 
 -- Utility mappings
 vim.keymap.set("n", "Q", "<nop>", { desc = "Disable Ex mode" })
--- vim.keymap.set("n", "<C-f>", "<cmd>silent !tmux neww tmux-sessionizer<CR>", { desc = "Open tmux sessionizer" })
--- vim.keymap.set("n", "<leader>=", vim.lsp.buf.format)
+vim.keymap.set("n", "<leader>/", "<cmd>nohlsearch<CR>", { desc = "Clear search highlights" })
+vim.keymap.set("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Delete buffer (refuses unsaved changes)" })
 
 -- Quickfix and location list navigation
 vim.keymap.set("n", "<C-k>", "<cmd>cnext<CR>zz", { desc = "Next quickfix item" })
@@ -42,9 +42,6 @@ vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><
 -- File operations
 vim.keymap.set("n", "<leader>x", "<cmd>!chmod +x %<CR>", { silent = true, desc = "Make current file executable" })
 vim.keymap.set("n", "<leader>mp", "<cmd>RenderMarkdown toggle<CR>", { desc = "Toggle Markdown render" })
-
--- Fun stuff
-vim.keymap.set("n", "<leader>mr", "<cmd>CellularAutomaton make_it_rain<CR>", { desc = "Make it rain" });
 
 -- Line operations
 vim.keymap.set('n', '<Leader>o', 'o<Esc>0"_D', { noremap = true, desc = "Insert blank line below" })

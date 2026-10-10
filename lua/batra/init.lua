@@ -1,63 +1,61 @@
 require("batra.set")
 require("batra.remap")
-require("batra.lazy_init")
 
-local augroup = vim.api.nvim_create_augroup
-local BatraGroup = augroup('Batra', {})
-
+local group = vim.api.nvim_create_augroup("Batra", { clear = true })
 local autocmd = vim.api.nvim_create_autocmd
-local yank_group = augroup('HighlightYank', {})
 
-function R(name)
-    require("plenary.reload").reload_module(name)
-end
+vim.filetype.add({ extension = { templ = "templ" } })
 
-vim.filetype.add({
-    extension = {
-        templ = 'templ',
-    }
+vim.diagnostic.config({
+    float = { border = "rounded", source = true },
 })
 
-autocmd('TextYankPost', {
-    group = yank_group,
-    pattern = '*',
-    callback = function()
-        vim.highlight.on_yank({
-            higroup = 'IncSearch',
-            timeout = 40,
-        })
-    end,
-})
-
-autocmd({ "BufWritePre" }, {
-    group = BatraGroup,
-    pattern = "*",
-    command = [[%s/\s\+$//e]],
-})
-
-autocmd('LspAttach', {
-    group = BatraGroup,
-    callback = function(e)
-        local opts = { buffer = e.buf }
-        vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, { buffer = e.buf, desc = "Go to definition" })
-        vim.keymap.set("n", "gr", function() vim.lsp.buf.references() end, { buffer = e.buf, desc = "Go to references" })
-        vim.keymap.set("n", "gi", function() vim.lsp.buf.implementation() end, { buffer = e.buf, desc = "Go to implementation" })
-        vim.keymap.set("n", "gt", function() vim.lsp.buf.type_definition() end, { buffer = e.buf, desc = "Go to type definition" })
-        vim.keymap.set("n", "K", function() vim.lsp.buf.hover() end, { buffer = e.buf, desc = "Show hover information" })
-        vim.keymap.set("n", "<leader>vws", function() vim.lsp.buf.workspace_symbol() end, { buffer = e.buf, desc = "Search workspace symbols" })
-        vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, { buffer = e.buf, desc = "Show diagnostics" })
-        vim.keymap.set("n", "<leader>vca", function() vim.lsp.buf.code_action() end, { buffer = e.buf, desc = "Code action" })
-        vim.keymap.set("n", "<leader>vrr", function() vim.lsp.buf.references() end, { buffer = e.buf, desc = "Find references" })
-        vim.keymap.set("n", "<leader>vrn", function() vim.lsp.buf.rename() end, { buffer = e.buf, desc = "Rename symbol" })
-       -- vim.keymap.set("n", "<leader>vf", function() vim.lsp.buf.format({ async = true }) end, { buffer = e.buf, desc = "Format code" })
-        vim.keymap.set("n", "[d", function() vim.diagnostic.goto_prev() end, { buffer = e.buf, desc = "Previous diagnostic" })
-        vim.keymap.set("n", "]d", function() vim.diagnostic.goto_next() end, { buffer = e.buf, desc = "Next diagnostic" })
-        vim.keymap.set("n", "<leader>vq", function() vim.diagnostic.setloclist() end, { buffer = e.buf, desc = "Add diagnostics to location list" })
-        vim.keymap.set("n", "<leader>q", function() vim.api.nvim_win_close(0, true) end, { buffer = e.buf, desc = "Close window and return focus" })
-    end
-})
-
+-- Diagnostics and window navigation don't require an attached language server.
+vim.keymap.set("n", "<leader>vd", vim.diagnostic.open_float, { desc = "Show diagnostics" })
+vim.keymap.set("n", "<leader>vq", vim.diagnostic.setloclist, { desc = "Diagnostics to location list" })
+vim.keymap.set("n", "<leader>q", "<cmd>close<CR>", { desc = "Close window" })
 
 vim.g.netrw_browse_split = 0
 vim.g.netrw_banner = 0
 vim.g.netrw_winsize = 25
+
+-- Load plugins after registering LspAttach so even the first client gets its mappings.
+autocmd("LspAttach", {
+    group = group,
+    callback = function(event)
+        local function map(lhs, rhs, desc)
+            vim.keymap.set("n", lhs, rhs, { buffer = event.buf, desc = desc })
+        end
+
+        map("gd", vim.lsp.buf.definition, "Go to definition")
+        map("gr", vim.lsp.buf.references, "Go to references")
+        map("gi", vim.lsp.buf.implementation, "Go to implementation")
+        map("gt", vim.lsp.buf.type_definition, "Go to type definition")
+        map("K", vim.lsp.buf.hover, "Show hover information")
+        map("<leader>vws", vim.lsp.buf.workspace_symbol, "Search workspace symbols")
+        map("<leader>vca", vim.lsp.buf.code_action, "Code action")
+        map("<leader>vrr", vim.lsp.buf.references, "Find references")
+        map("<leader>vrn", vim.lsp.buf.rename, "Rename symbol")
+
+        local client = vim.lsp.get_client_by_id(event.data.client_id)
+        if client and client:supports_method("textDocument/completion") then
+            vim.lsp.completion.enable(true, client.id, event.buf, { autotrigger = true })
+            vim.keymap.set("i", "<C-Space>", vim.lsp.completion.get,
+                { buffer = event.buf, desc = "LSP completion" })
+        end
+    end,
+})
+
+require("batra.lazy_init")
+
+autocmd("TextYankPost", {
+    group = group,
+    callback = function()
+        vim.hl.on_yank({ higroup = "IncSearch", timeout = 40 })
+    end,
+})
+
+autocmd("BufWritePre", {
+    group = group,
+    command = [[%s/\s\+$//e]],
+})
