@@ -1,6 +1,6 @@
--- Run from the config root: nvim --headless -u NONE -l tests/python_errors.lua
+-- Run from the package root: nvim --headless -u NONE -l tests/python_errors.lua
 vim.opt.runtimepath:prepend(vim.fn.getcwd())
-local ok, translator = pcall(require, "batra.python_errors")
+local ok, translator = pcall(require, "python-error-translator")
 assert(ok, "Python diagnostic translator is not implemented")
 
 local function equal(actual, expected)

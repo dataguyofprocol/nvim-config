@@ -1,6 +1,6 @@
 -- Run: nvim --headless -u NONE -l tests/python_errors_lsp.lua
 vim.opt.runtimepath:prepend(vim.fn.getcwd())
-local translator = require("batra.python_errors")
+local translator = require("python-error-translator")
 translator.setup()
 local path = vim.fn.getcwd() .. "/tests/fixtures/python_errors.py"
 vim.cmd.edit(path)

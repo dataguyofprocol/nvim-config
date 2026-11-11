@@ -5,7 +5,7 @@ local function escape(text)
     return (text:gsub("([%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1"))
 end
 
-for _, entry in ipairs(require("batra.python_errors.rules")) do
+for _, entry in ipairs(require("python-error-translator.rules")) do
     local template, explanation = entry[1], entry[2]
     local names, parts, cursor = {}, { "^" }, 1
     while true do

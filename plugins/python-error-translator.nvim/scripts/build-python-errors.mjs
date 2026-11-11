@@ -45,5 +45,5 @@ for (const { id, template, explanation } of rules) {
     lines.push(`    { -- ${id}`, `        ${quote(template)},`, `        ${quote(explanation)},`, '    },');
 }
 lines.push('}', '');
-await writeFile(new URL('../lua/batra/python_errors/rules.lua', import.meta.url), lines.join('\n'));
+await writeFile(new URL('../lua/python-error-translator/rules.lua', import.meta.url), lines.join('\n'));
 console.log(`Generated ${rules.length} Python diagnostic translations from Pyright ${version}`);

@@ -1,8 +1,28 @@
 # Python diagnostic explanations
 
-This local Neovim extension adds plain-English explanations to Pyright diagnostics.
-Open a Python file, place the cursor on an error, and press `<Space>vd`.
+This self-contained Neovim plugin adds plain-English explanations to Pyright diagnostics.
+In this config, open a Python file, place the cursor on an error, and press `<Space>vd`.
 The float shows the explanation followed by the complete original diagnostic.
+
+## Load the package
+
+All runtime code, scripts, tests, and licenses live in this folder. The config
+loads it through `lua/batra/lazy/python_errors.lua` as a local lazy.nvim plugin:
+
+```lua
+{
+    dir = vim.fn.stdpath("config") .. "/plugins/python-error-translator.nvim",
+    name = "python-error-translator.nvim",
+    main = "python-error-translator",
+    lazy = false,
+    priority = 1000,
+    opts = {},
+}
+```
+
+To use the folder in another config, point `dir` at its location. Without
+lazy.nvim, put the package on Neovim's runtimepath and call
+`require("python-error-translator").setup()` after configuring diagnostic displays.
 
 The catalog covers 172 English message templates from Pyright 1.1.408, the version
 installed through Mason in this config. It includes imports, names, argument and
@@ -22,12 +42,11 @@ displays stay disabled. The config loads the extension before the language serve
 
 ## Verify the extension
 
-Run these commands from the config root:
+Run these commands from this package's root:
 
 ```sh
 nvim --headless -u NONE -l tests/python_errors.lua
 nvim --headless -u NONE -l tests/python_errors_lsp.lua
-nvim --headless '+lua print("ok")' +qa
 ```
 
 The LSP test needs `pyright-langserver` on `PATH`. It analyzes the intentionally
