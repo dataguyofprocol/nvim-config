@@ -1,7 +1,6 @@
--- Run from the package root: nvim --headless -u NONE -l tests/python_errors.lua
 vim.opt.runtimepath:prepend(vim.fn.getcwd())
 local ok, translator = pcall(require, "python-error-translator")
-assert(ok, "Python diagnostic translator is not implemented")
+assert(ok, "python-error-translator is not implemented")
 
 local function equal(actual, expected)
     assert(vim.deep_equal(actual, expected),
@@ -9,24 +8,24 @@ local function equal(actual, expected)
 end
 
 local argument = 'Argument of type "str" cannot be assigned to parameter "count" of type "int" in function "repeat"'
-local explanation = '"repeat" expects "int" for "count", but this argument has type "str".'
+local explanation = '"repeat" expects "int" for "count", but this argument has type "str". Convert the argument, or update the annotation of "count" in "repeat".'
 equal(translator.translate(argument), explanation)
 equal(translator.translate(argument .. '\n  "str" is not assignable to "int"'),
     explanation .. '\n  "str" is not assignable to "int"')
 equal(translator.translate('Type "dict[str, list[int | None]]" is not assignable to declared type "list[str]"'),
-    'This value has type "dict[str, list[int | None]]", but the declared type is "list[str]".')
+    'This value has type "dict[str, list[int | None]]", but the declared type is "list[str]". Update the declaration to match the value, or convert the value.')
 equal(translator.translate('"path" is possibly unbound'),
-    'Some code paths reach this use of "path" without assigning it a value.')
+    'Some code paths reach this use of "path" without assigning it a value. Assign a value in every branch, or initialize the variable before the conditional.')
 equal(translator.translate('"path" is unbound'),
     '"path" is used before it has a value in this scope.')
 equal(translator.translate('"path" is not defined'),
     'Python cannot find a definition of "path" in this scope. Check its spelling, definition, or import.')
 equal(translator.translate('Object of type "None" is not subscriptable'),
-    'This value may be None, so indexing it with [...] is unsafe. Check for None before indexing.')
+    'This value may be None, so indexing it with [...] is unsafe. Check for None before indexing. Guard with "if value is not None" before indexing.')
 equal(translator.translate('Import "company_sdk" could not be resolved'),
-    'Pyright cannot find "company_sdk" in the configured Python environment or import paths. Check the interpreter, installation, and project paths.')
+    'Pyright cannot find "company_sdk" in the configured Python environment or import paths. Check the interpreter, installation, and project paths. Install the package into the configured interpreter, or point Pyright at the right environment in pyrightconfig.json.')
 equal(translator.translate('Import "company_sdk" could not be resolved from source'),
-    'Pyright found type information for "company_sdk", but cannot find its implementation in the configured environment. Check the interpreter and package installation.')
+    'Pyright found type information for "company_sdk", but cannot find its implementation in the configured environment. Check the interpreter and package installation. Usually safe to ignore: types come from bundled stubs. Install the package to silence it.')
 
 for _, message in ipairs({
     "A future Pyright diagnostic",
@@ -41,50 +40,35 @@ for _, message in ipairs({
     end
 end
 
-local diagnostic = { source = "Pyright", code = "reportArgumentType", message = argument, lnum = 0, col = 3 }
-local original = vim.deepcopy(diagnostic)
-equal(translator.format(diagnostic), explanation .. "\n\nOriginal Pyright diagnostic:\n" .. argument)
-equal(diagnostic, original)
-equal(translator.format({ source = "ruff", message = argument }), argument)
-equal(translator.format({ source = "lua_ls", message = argument }), argument)
-equal(translator.format({ message = argument }), argument)
-equal(translator.format({ source = "Pyright", message = "Unrecognized diagnostic" }), "Unrecognized diagnostic")
-
-vim.diagnostic.config({
-    float = { border = "rounded", source = true },
-    virtual_text = false,
-    virtual_lines = false,
-})
+local published
+local record = function(_, result)
+    published = result
+end
+vim.lsp.handlers["textDocument/publishDiagnostics"] = record
+vim.lsp.diagnostic.on_publish_diagnostics = record
+vim.lsp.diagnostic.on_diagnostic = record
+local real_client_by_id = vim.lsp.get_client_by_id
+vim.lsp.get_client_by_id = function(id)
+    return { name = id == 1 and "pyright" or "ruff" }
+end
 translator.setup()
-translator.setup()
-local config = vim.diagnostic.config()
-equal(config.virtual_text, false)
-equal(config.virtual_lines, false)
-equal(config.float.border, "rounded")
-equal(config.float.source, true)
-equal(config.float.format(diagnostic), explanation .. "\n\nOriginal Pyright diagnostic:\n" .. argument)
 
-local buf = vim.api.nvim_create_buf(false, true)
-vim.api.nvim_buf_set_lines(buf, 0, -1, false, { 'repeat("bad")' })
-local namespace = vim.api.nvim_create_namespace("python-errors-test")
-vim.diagnostic.set(namespace, buf, { diagnostic })
-local float_buf, float_win = vim.diagnostic.open_float(buf, { scope = "buffer", header = false, prefix = "" })
-assert(float_buf and float_win, "Diagnostic float did not open")
-local lines = table.concat(vim.api.nvim_buf_get_lines(float_buf, 0, -1, false), "\n")
-assert(lines:find(explanation, 1, true), "Float is missing the explanation")
-assert(lines:find(argument, 1, true), "Float lost the original diagnostic")
-equal(vim.diagnostic.get(buf)[1].message, argument)
-vim.api.nvim_win_close(float_win, true)
-vim.api.nvim_set_current_buf(buf)
-vim.diagnostic.setloclist({ open = false })
-equal(vim.fn.getloclist(0)[1].text, argument)
+vim.lsp.handlers["textDocument/publishDiagnostics"](nil,
+    { diagnostics = { { message = argument }, { message = "Unrecognized diagnostic" } } }, { client_id = 1 })
+equal(published.diagnostics[1].message, explanation)
+equal(published.diagnostics[2].message, "Unrecognized diagnostic")
 
-vim.diagnostic.config({ virtual_text = { spacing = 7 }, virtual_lines = { current_line = true } })
-translator.setup()
-config = vim.diagnostic.config()
-equal(config.virtual_text.spacing, 7)
-equal(config.virtual_lines.current_line, true)
-equal(config.virtual_text.format(diagnostic), explanation .. "\n\nOriginal Pyright diagnostic:\n" .. argument)
-equal(config.virtual_lines.format(diagnostic), explanation .. "\n\nOriginal Pyright diagnostic:\n" .. argument)
+vim.lsp.diagnostic.on_publish_diagnostics(nil,
+    { diagnostics = { { message = argument } } }, { client_id = 1 })
+equal(published.diagnostics[1].message, explanation)
 
-print("Python diagnostic translation and float checks passed")
+vim.lsp.diagnostic.on_diagnostic(nil,
+    { kind = "full", items = { { message = argument } } }, { client_id = 1 })
+equal(published.items[1].message, explanation)
+
+vim.lsp.diagnostic.on_diagnostic(nil,
+    { kind = "full", items = { { message = argument } } }, { client_id = 2 })
+equal(published.items[1].message, argument)
+vim.lsp.get_client_by_id = real_client_by_id
+
+print("Python diagnostic translation checks passed")

@@ -33,3 +33,6 @@ vim.opt.hlsearch = true
 vim.opt.incsearch = true
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
+
+vim.g.have_nerd_font = true
+vim.opt.timeoutlen = 300

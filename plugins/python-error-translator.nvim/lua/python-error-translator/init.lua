@@ -1,75 +1,104 @@
 local M = {}
+
+local config = { servers = { "pyright", "basedpyright" } }
+
 local rules = {}
+for _, entry in ipairs(require("python-error-translator.db")) do
+    entry.weight = #(entry.pattern:gsub("{%w+}", ""))
+    rules[#rules + 1] = entry
+end
+
+table.sort(rules, function(a, b)
+    if a.weight ~= b.weight then
+        return a.weight > b.weight
+    end
+    return a.id < b.id
+end)
+
+local memo = {}
 
 local function escape(text)
     return (text:gsub("([%(%)%.%%%+%-%*%?%[%]%^%$])", "%%%1"))
 end
 
-for _, entry in ipairs(require("python-error-translator.rules")) do
-    local template, explanation = entry[1], entry[2]
-    local names, parts, cursor = {}, { "^" }, 1
-    while true do
-        local start, finish, name = template:find("{([%w_]+)}", cursor)
-        if not start then
-            parts[#parts + 1] = escape(template:sub(cursor)) .. "$"
-            break
+local function compiled(entry)
+    if not entry.compiled_pattern then
+        local names, parts, cursor = {}, { "^" }, 1
+        while true do
+            local start, finish, name = entry.pattern:find("{(%w+)}", cursor)
+            if not start then
+                parts[#parts + 1] = escape(entry.pattern:sub(cursor)) .. "$"
+                break
+            end
+            parts[#parts + 1] = escape(entry.pattern:sub(cursor, start - 1)) .. "(.-)"
+            names[#names + 1] = name
+            cursor = finish + 1
         end
-        parts[#parts + 1] = escape(template:sub(cursor, start - 1)) .. "(.-)"
-        names[#names + 1] = name
-        cursor = finish + 1
+        entry.compiled_pattern = table.concat(parts)
+        entry.compiled_names = names
     end
-    rules[#rules + 1] = {
-        pattern = table.concat(parts), names = names, explanation = explanation,
-    }
+    return entry.compiled_pattern, entry.compiled_names
 end
 
----Translate a known Pyright headline, retaining every diagnostic detail line.
----@param message string
----@return string
 function M.translate(message)
+    if memo[message] then
+        return memo[message]
+    end
     local headline = message:match("^[^\n]*")
-    for _, rule in ipairs(rules) do
-        local captures = { headline:match(rule.pattern) }
-        if #captures > 0 then
+    local translated = message
+    for _, entry in ipairs(rules) do
+        local pattern, names = compiled(entry)
+        local captures = { headline:match(pattern) }
+        if #captures > 0 and (#names == 0 or #captures == #names) then
             local values = {}
-            for index, name in ipairs(rule.names) do
+            for index, name in ipairs(names) do
                 values[name] = captures[index]
             end
-            local explanation = rule.explanation:gsub("{([%w_]+)}", function(name)
-                return values[name]
-            end)
-            return explanation .. message:sub(#headline + 1)
+            local complete = true
+            local filled = (entry.improved_message:gsub("{(%w+)}", function(name)
+                local value = values[name]
+                if value == nil then
+                    complete = false
+                end
+                return value
+            end))
+            if complete then
+                translated = filled .. message:sub(#headline + 1)
+                break
+            end
         end
     end
-    return message
+    memo[message] = translated
+    return translated
 end
 
----Display an explanation alongside the original; never change stored diagnostics.
----@param diagnostic vim.Diagnostic
----@return string
-function M.format(diagnostic)
-    if diagnostic.source ~= "Pyright" and diagnostic.source ~= "pyright" then
-        return diagnostic.message
-    end
-    local translated = M.translate(diagnostic.message)
-    if translated == diagnostic.message then
-        return diagnostic.message
-    end
-    local headline = translated:match("^[^\n]*")
-    return headline .. "\n\nOriginal Pyright diagnostic:\n" .. diagnostic.message
-end
-
----Install formatters without enabling disabled diagnostic displays.
-function M.setup()
-    local config, options = vim.diagnostic.config(), {}
-    for _, name in ipairs({ "float", "virtual_text", "virtual_lines" }) do
-        local value = config[name]
-        if value then
-            options[name] = type(value) == "table" and vim.deepcopy(value) or {}
-            options[name].format = M.format
+function M.setup(opts)
+    config = vim.tbl_deep_extend("force", config, opts or {})
+    local function translate(result, ctx)
+        local client = vim.lsp.get_client_by_id(ctx.client_id)
+        if not (client and result and vim.tbl_contains(config.servers, client.name)) then
+            return
+        end
+        for _, diagnostic in ipairs(result.diagnostics or result.items or {}) do
+            diagnostic.message = M.translate(diagnostic.message)
         end
     end
-    vim.diagnostic.config(options)
+    local function wrap(name)
+        local original = vim.lsp.diagnostic[name]
+        if original then
+            vim.lsp.diagnostic[name] = function(err, result, ctx, handler_config)
+                translate(result, ctx)
+                return original(err, result, ctx, handler_config)
+            end
+        end
+    end
+    local original = vim.lsp.handlers["textDocument/publishDiagnostics"]
+    vim.lsp.handlers["textDocument/publishDiagnostics"] = function(err, result, ctx, handler_config)
+        translate(result, ctx)
+        return original(err, result, ctx, handler_config)
+    end
+    wrap("on_publish_diagnostics")
+    wrap("on_diagnostic")
 end
 
 return M
