@@ -20,22 +20,22 @@ if not success then
 end
 
 local expected = {
-    reportMissingImports = "Pyright cannot find",
-    reportUndefinedVariable = "Python cannot find a definition",
+    reportMissingImports = "Pyright can't find",
+    reportUndefinedVariable = "Pyright can't find a definition",
     reportArgumentType = '"repeat" expects "int" for "count"',
-    reportAssignmentType = "This value has type",
-    reportReturnType = "This function promises to return",
-    reportPossiblyUnboundVariable = "Some code paths reach",
+    reportAssignmentType = "This variable expects",
+    reportReturnType = "This function should return",
+    reportPossiblyUnboundVariable = "may not have a value here",
     reportOptionalMemberAccess = "This value may be None",
     reportOptionalSubscript = "This value may be None",
     reportOptionalCall = "This value may be None",
-    reportAttributeAccessIssue = "Pyright cannot read attribute",
-    reportOperatorIssue = "The operator",
-    reportIndexIssue = 'This operation requires the method "__getitem__"',
+    reportAttributeAccessIssue = "You can't access",
+    reportOperatorIssue = "You can't use",
+    reportIndexIssue = 'This operation needs a "__getitem__" method',
     reportAbstractUsage = "still has abstract members",
-    reportTypedDictNotRequiredAccess = "This TypedDict lookup is not type-safe",
-    reportCallIssue = "None of the declared call signatures",
-    reportGeneralTypeIssues = "cannot be awaited",
+    reportTypedDictNotRequiredAccess = "You can't safely read this TypedDict key",
+    reportCallIssue = "None of the overloads",
+    reportGeneralTypeIssues = "You can't await",
 }
 local raw_headlines = {
     'Argument of type "str" cannot be assigned to parameter',
@@ -64,8 +64,9 @@ local float_buf, float_win = vim.diagnostic.open_float(buf, {
 })
 assert(float_buf and float_win, "Live diagnostic float did not open")
 local text = table.concat(vim.api.nvim_buf_get_lines(float_buf, 0, -1, false), "\n")
-assert(text:find('"repeat" expects "int" for "count"', 1, true), "Float lacks translation")
-assert(text:find("Convert the argument, or update the annotation", 1, true), "Float lacks fix guidance")
+local unwrapped = text:gsub("%s+", " ")
+assert(unwrapped:find('"repeat" expects "int" for "count", but you passed "', 1, true),
+    "Float lacks the plain-English explanation: " .. text)
 assert(not text:find('Argument of type "str" cannot be assigned', 1, true), "Float shows the raw message")
 vim.api.nvim_win_close(float_win, true)
 client:stop(true)

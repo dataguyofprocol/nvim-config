@@ -8,8 +8,10 @@ Pyright's messages name types precisely but read like compiler internals:
 in function "repeat"`. This plugin rewrites each message in place, before it
 reaches any diagnostic display:
 
-> `"repeat" expects "int" for "count", but this argument has type "str".
-> Convert the argument, or update the annotation of "count" in "repeat".`
+> `"repeat" expects "int" for "count", but you passed "str".`
+
+Each explanation states the problem in one or two short sentences. Suggestions
+are included only when the message gives enough context for a specific next step.
 
 The translation appears everywhere the message does: floats, virtual text,
 virtual lines, and the location list. Detail lines below the headline, ranges,
@@ -69,6 +71,7 @@ nvim --headless -u NONE -l tests/python_errors.lua
 nvim --headless -u NONE -l tests/python_errors_lsp.lua
 ```
 
-The second test needs `pyright-langserver` on `PATH`. It starts a real server
+The first test checks every catalog entry, placeholder preservation, and detail
+lines. The second needs `pyright-langserver` on `PATH`. It starts a real server
 against an intentionally invalid fixture and checks 16 rule families arrive
 translated, without executing any Python.
