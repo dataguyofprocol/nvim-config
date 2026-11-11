@@ -9,6 +9,7 @@ vim.filetype.add({ extension = { templ = "templ" } })
 vim.diagnostic.config({
     float = { border = "rounded", source = true },
 })
+require("batra.python_errors").setup()
 
 -- Diagnostics and window navigation don't require an attached language server.
 vim.keymap.set("n", "<leader>vd", vim.diagnostic.open_float, { desc = "Show diagnostics" })
